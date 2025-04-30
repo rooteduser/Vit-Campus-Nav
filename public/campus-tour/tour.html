@@ -1,118 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Virtual Tour</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
     <style>
-        body { margin: 0; height: 100% }
-        #panorama { width: 100%; height: 100vh; }
+        body {
+            margin: 0;
+            height: 100%;
+        }
+
+        #panorama {
+            width: 100%;
+            height: 100vh;
+        }
+
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: sans-serif;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        select {
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        .back-symbol {
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+        }
     </style>
 </head>
+
 <body>
 
-<!-- The div where the panorama will be displayed -->
-<div id="panorama"></div>
+    <div id="controls">
+        <div class="back-symbol" onclick="goBack()">←</div>
+        <label for="locationSelect"><strong>Jump to:</strong></label>
+        <select id="locationSelect" onchange="jumpToScene()"></select>
+    </div>
 
-<script type="text/javascript">
-    // Define room data dynamically
-    const scenes = {
-        room1: {
-            image: "../assets/pano_images/floor5/pano_image1.jpg",
-            hotspots: [
-                { pitch: 0, yaw: 70, text: "Go to Room 2", target: "room2" }
-            ]
-        },
-        room2: {
-            image: "../assets/pano_images/floor5/pano_image2.jpg",
-            hotspots: [
-                { pitch: 0, yaw: -80, text: "Go back to Room 1", target: "room1" },
-                { pitch: 5, yaw: 110, text: "Go to Room 3", target: "room3" }
-            ]
-        },
-        room3: {
-            image: "../assets/pano_images/floor5/pano_image3.jpg",
-            hotspots: [
-                { pitch: 0, yaw: 30, text: "Go back to Room 2", target: "room2" },
-                { pitch: 0, yaw: -50, text: "Go to Room 4", target: "room4" }
-            ]
-        },
-        room4: {
-            image: "../assets/pano_images/floor5/pano_image4.jpg",
-            hotspots: [
-                { pitch: 0, yaw: 90, text: "Go back to Room 3", target: "room3" },
-                { pitch: -5, yaw: 25, text: "Go to Room 8", target: "room9" },
-                { pitch: 0, yaw: -85, text: "Go to Room 5", target: "room5" }
-            ]
-        },
-        room5: {
-            image: "../assets/pano_images/floor5/pano_image5.jpg",
-            hotspots: [
-                { pitch: 0, yaw: -3, text: "Go to Room 6", target: "room7" },
-                { pitch: -5, yaw: 90, text: "Go back to Room 4", target: "room4" }
-            ]
-        },
-        // room6: {
-        //     image: "../assets/pano_images/floor5/pano_image6.jpg",
-        //     hotspots: [
-        //         { pitch: 0, yaw: -70, text: "Go to Room 3", target: "room3" },
-        //         { pitch: 5, yaw: 150, text: "Go to Room 9", target: "room9" }
-        //     ]
-        // },
-        room7: {
-            image: "../assets/pano_images/floor5/pano_image7.jpg",
-            hotspots: [
-                { pitch: 0, yaw: -80, text: "Go to Room 7", target: "room8" }
-            ]
-        },
-        room8: {
-            image: "../assets/pano_images/floor5/pano_image8.jpg",
-            hotspots: [
-                { pitch: 0, yaw: 0, text: "Go to Room 1", target: "room1" }
-            ]
-        },
-        room9: {
-            image: "../assets/pano_images/floor5/pano_image9.jpg",
-            hotspots: [
-                { pitch: 0, yaw: -90, text: "Go to Room 4", target: "room4" }
-            ]
-        },
-        // room10: {
-        //     image: "../assets/pano_images/floor5/pano_image10.jpg",
-        //     hotspots: [
-        //         { pitch: 0, yaw: 50, text: "Go to Room 7", target: "room7" }
-        //     ]
-        // }
-    };
+    <div id="panorama"></div>
 
-    // Initialize the viewer with the first scene
-    let viewer;
-    function loadRoom(room) {
-        if (!scenes[room]) return;
+    <script type="text/javascript">
+        const scenes = {
+            room1: { name: "Room 1", image: "../assets/pano_images/campus/1.jpg", hotspots: [{ pitch: 0, yaw: 0, text: "", target: "room2" }] },
+            room2: { name: "Room 2", image: "../assets/pano_images/campus/2.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "", target: "room1" }, { pitch: 0, yaw: 70, text: "Parcel", target: "room3" }, { pitch: 0, yaw: 90, text: "Main Gate 2", target: "room4" }] },
+            room3: { name: "Room 3", image: "../assets/pano_images/campus/3.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 2", target: "room2" }, { pitch: -10, yaw: 10, text: "", target: "room4" }] },
+            room4: { name: "Room 4", image: "../assets/pano_images/campus/4.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 3", target: "room3" }, { pitch: 0, yaw: 90, text: "Main Gate", target: "room6" }] },
+            room5: { name: "Room 5", image: "../assets/pano_images/campus/5.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 4", target: "room4" }, { pitch: 0, yaw: 90, text: "Go to Room 6", target: "room6" }] },
+            room6: { name: "Room 6", image: "../assets/pano_images/campus/6.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "", target: "room5" }, { pitch: 0, yaw: 160, text: "", target: "room7" }] },
+            room7: { name: "Room 7", image: "../assets/pano_images/campus/17.jpg", hotspots: [{ pitch: 0, yaw: 0, text: "", target: "room8" }, { pitch: 0, yaw: 90, text: "", target: "room6" }] },
+            room8: { name: "Room 8", image: "../assets/pano_images/campus/18.jpg", hotspots: [{ pitch: 0, yaw: 5, text: "", target: "room9" }, { pitch: 0, yaw: 90, text: "", target: "room7" }] },
+            room9: { name: "Room 9", image: "../assets/pano_images/campus/19.jpg", hotspots: [{ pitch: 0, yaw: 5, text: "", target: "room10" }, { pitch: 0, yaw: 180, text: "Go to Room 10", target: "room8" }] },
+            room10: { name: "Room 10", image: "../assets/pano_images/campus/20.jpg", hotspots: [{ pitch: 0, yaw: 0, text: "", target: "room11" }, { pitch: 0, yaw: 180, text: "Go to Room 11", target: "room9" }] },
+            room11: { name: "Room 11", image: "../assets/pano_images/campus/21.jpg", hotspots: [{ pitch: 0, yaw: 180, text: "Go to Room 12", target: "room10" }] },
+            // room12: { name: "Room 12", image: "../assets/pano_images/campus/22.jpg", hotspots: [{}] },
 
-        // Destroy previous instance (prevents memory leaks)
-        if (viewer) viewer.destroy();
+            room15: { name: "Room 15", image: "../assets/pano_images/floor3/1.jpg", hotspots: [{ pitch: 0, yaw: 90, text: "Go to Room 16", target: "room16" }] },
+            room16: { name: "Room 16", image: "../assets/pano_images/floor3/2.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 15", target: "room15" }, { pitch: 0, yaw: 90, text: "Go to Room 17", target: "room17" }] },
+            room17: { name: "Room 17", image: "../assets/pano_images/floor3/3.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 16", target: "room16" }, { pitch: 0, yaw: 90, text: "Go to Room 18", target: "room18" }] },
+            room18: { name: "Room 18", image: "../assets/pano_images/floor3/4.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 17", target: "room17" }, { pitch: 0, yaw: 90, text: "Go to Room 19", target: "room19" }] },
+            room19: { name: "Room 19", image: "../assets/pano_images/floor3/5.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 18", target: "room18" }, { pitch: 0, yaw: 90, text: "Go to Room 20", target: "room20" }] },
+            room20: { name: "Room 20", image: "../assets/pano_images/floor3/6.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 19", target: "room19" }] },
 
-        // Create new viewer with the selected room data
-        viewer = pannellum.viewer('panorama', {
-            "type": "equirectangular",
-            "panorama": scenes[room].image,
-            "autoLoad": true,
-            "hotSpots": scenes[room].hotspots.map(hotspot => ({
-                "pitch": hotspot.pitch,
-                "yaw": hotspot.yaw,
-                "type": "scene",
-                "text": hotspot.text,
-                "clickHandlerFunc": () => loadRoom(hotspot.target)
-            }))
-        });
-    }
+            room21: { name: "Room 21", image: "../assets/pano_images/floor1/1.jpg", hotspots: [] },
+            room22: { name: "Room 22", image: "../assets/pano_images/floor1/2.jpg", hotspots: [] },
+            room23: { name: "Room 23", image: "../assets/pano_images/floor1/3.jpg", hotspots: [] },
+            room24: { name: "Room 24", image: "../assets/pano_images/floor1/4.jpg", hotspots: [] },
+            room25: { name: "Room 25", image: "../assets/pano_images/floor1/5.jpg", hotspots: [] },
+            room26: { name: "Room 26", image: "../assets/pano_images/floor1/6.jpg", hotspots: [] },
+            room27: { name: "Room 27", image: "../assets/pano_images/floor1/7.jpg", hotspots: [] },
+            room28: { name: "Room 28", image: "../assets/pano_images/floor1/8.jpg", hotspots: [] },
+            room29: { name: "Room 29", image: "../assets/pano_images/floor1/9.jpg", hotspots: [] },
+            room30: { name: "Room 30", image: "../assets/pano_images/floor1/10.jpg", hotspots: [] },
 
-    // Load the initial scene (Room 1)
-    loadRoom("room8");
-</script>
+            room31: { name: "Room 31", image: "../assets/pano_images/floor0/1.jpg", hotspots: [{ pitch: 0, yaw: 90, text: "Go to Room 32", target: "room32" }] },
+            room32: { name: "Room 32", image: "../assets/pano_images/floor0/2.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 31", target: "room31" }, { pitch: 0, yaw: 90, text: "Go to Room 33", target: "room33" }] },
+            room33: { name: "Room 33", image: "../assets/pano_images/floor0/3.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 32", target: "room32" }, { pitch: 0, yaw: 90, text: "Go to Room 34", target: "room34" }] },
+            room34: { name: "Room 34", image: "../assets/pano_images/floor0/4.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 33", target: "room33" }, { pitch: 0, yaw: 90, text: "Go to Room 35", target: "room22" }] },
+
+            room35: { name: "Room 35", image: "../assets/pano_images/floor5/1.jpg", hotspots: [{ pitch: 0, yaw: 0, text: "", target: "room2" }] },
+            room36: { name: "Room 36", image: "../assets/pano_images/floor5/2.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 1", target: "room1" }, { pitch: 0, yaw: 90, text: "Go to Room 3", target: "room3" }] },
+            room37: { name: "Room 37", image: "../assets/pano_images/floor5/3.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 2", target: "room2" }, { pitch: 0, yaw: 90, text: "Go to Room 4", target: "room4" }] },
+            room38: { name: "Room 38", image: "../assets/pano_images/floor5/4.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 3", target: "room3" }, { pitch: 0, yaw: 90, text: "Go to Room 5", target: "room5" }] },
+            room39: { name: "Room 39", image: "../assets/pano_images/floor5/5.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 4", target: "room4" }, { pitch: 0, yaw: 90, text: "Go to Room 6", target: "room6" }] },
+            room40: { name: "Room 40", image: "../assets/pano_images/floor5/6.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 5", target: "room5" }, { pitch: 0, yaw: 90, text: "Go to Room 7", target: "room7" }] },
+            room41: { name: "Room 41", image: "../assets/pano_images/floor5/7.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 6", target: "room6" }, { pitch: 0, yaw: 90, text: "Go to Room 8", target: "room8" }] },
+            room42: { name: "Room 42", image: "../assets/pano_images/floor5/8.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 7", target: "room7" }, { pitch: 0, yaw: 90, text: "Go to Room 9", target: "room9" }] },
+            room43: { name: "Room 43", image: "../assets/pano_images/floor5/9.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 8", target: "room8" }, { pitch: 0, yaw: 90, text: "Go to Room 10", target: "room10" }] },
+            room44: { name: "Room 44", image: "../assets/pano_images/floor5/10.jpg", hotspots: [{ pitch: 0, yaw: -90, text: "Go to Room 9", target: "room9" }] },
+
+            room45: {
+                image: "../assets/pano_images/floor5/1.jpg",
+                hotspots: [
+                    { pitch: 0, yaw: 70, target: "room46" }
+                ]
+            },
+            room46: {
+                image: "../assets/pano_images/floor5/2.jpg",
+                hotspots: [
+                    { pitch: 0, yaw: -80, target: "room45" },
+                    { pitch: 5, yaw: 110, target: "room47" }
+                ]
+            },
+            room47: {
+                image: "../assets/pano_images/floor5/3.jpg",
+                hotspots: [
+                    { pitch: 0, yaw: 30, target: "room46" },
+                    { pitch: 0, yaw: -50, target: "room48" }
+                ]
+            },
+            room48: {
+                image: "../assets/pano_images/floor5/4.jpg",
+                hotspots: [
+                    { pitch: 0, yaw: 90, target: "room47" },
+                    { pitch: -5, yaw: 25, target: "room54" },
+                    { pitch: 0, yaw: -85, target: "room49" }
+                ]
+            },
+            room49: {
+                image: "../assets/pano_images/floor5/5.jpg",
+                hotspots: [
+                    { pitch: 0, yaw: -3, target: "room51" },
+                    { pitch: -5, yaw: 90, target: "room48" }
+                ]
+            },
+            room51: {
+                image: "../assets/pano_images/floor5/7.jpg",
+                hotspots: [
+                    { pitch: 0, yaw: -80, target: "room52" }
+                ]
+            },
+            room52: {
+                image: "../assets/pano_images/floor5/8.jpg",
+                hotspots: [
+                    { pitch: 0, yaw: 0, target: "room45" }
+                ]
+            },
+            room54: {
+                image: "../assets/pano_images/floor5/9.jpg",
+                hotspots: [
+                    { pitch: 0, yaw: -90, target: "room48" }
+                ]
+            }
+
+
+        };
+
+        const floors = {
+            "Campus": Object.keys(scenes).filter(key => {
+                const num = parseInt(key.replace("room", ""));
+                return num >= 1 && num <= 14;
+            }),
+            "Floor 0": Object.keys(scenes).filter(key => {
+                const num = parseInt(key.replace("room", ""));
+                return num >= 31 && num <= 35;
+            }),
+            "Floor 1": Object.keys(scenes).filter(key => {
+                const num = parseInt(key.replace("room", ""));
+                return num >= 21 && num <= 30;
+            }),
+            "Floor 2": Object.keys(scenes).filter(key => {
+                const num = parseInt(key.replace("room", ""));
+                return num >= 55 && num <= 58;
+            }),
+            "Floor 3": Object.keys(scenes).filter(key => {
+                const num = parseInt(key.replace("room", ""));
+                return num >= 15 && num <= 20;
+            }),
+            "Floor 4": Object.keys(scenes).filter(key => {
+                const num = parseInt(key.replace("room", ""));
+                return num >= 59 && num <= 73;
+            }),
+            "Floor 5": Object.keys(scenes).filter(key => {
+                const num = parseInt(key.replace("room", ""));
+                return num >= 45 && num <= 54;
+            })
+
+        };
+
+        let viewer;
+
+        function loadRoom(room) {
+            if (!scenes[room]) return;
+
+            if (viewer) viewer.destroy();
+
+            viewer = pannellum.viewer("panorama", {
+                type: "equirectangular",
+                panorama: scenes[room].image,
+                autoLoad: true,
+                yaw: scenes[room].yaw || 0,
+                hotSpots: scenes[room].hotspots.map(h => ({
+                    pitch: h.pitch,
+                    yaw: h.yaw,
+                    type: "scene",
+                    text: h.text,
+                    clickHandlerFunc: () => loadRoom(h.target)
+                }))
+            });
+        }
+
+        function jumpToScene() {
+            const select = document.getElementById("locationSelect");
+            loadRoom(select.value);
+        }
+
+        function populateDropdown() {
+            const select = document.getElementById("locationSelect");
+
+            for (const [groupName, roomKeys] of Object.entries(floors)) {
+                const optgroup = document.createElement("optgroup");
+                optgroup.label = groupName;
+
+                roomKeys.forEach(roomKey => {
+                    const option = document.createElement("option");
+                    option.value = roomKey;
+                    option.text = scenes[roomKey].name;
+                    optgroup.appendChild(option);
+                });
+
+                select.appendChild(optgroup);
+            }
+        }
+
+        function goBack() {
+            window.location.href = "/"; // Replace with your main page URL
+        }
+
+        populateDropdown();
+        loadRoom("room1");
+    </script>
 
 </body>
+
 </html>

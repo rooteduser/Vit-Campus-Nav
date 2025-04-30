@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css"></link>
+    <link rel="stylesheet" href="style.css">
     <title>Teacher Directory</title>
     <script defer src="script.js"></script>
-    
 </head>
+
 <body>
     <h1>Search for a Teacher</h1>
-    
+
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="Enter teacher's name" autocomplete="off">
         <ul id="suggestions"></ul>
     </div>
-    
+
     <button id="searchButton">Search</button>
 
-    <div id="results">
-        <div id="floorMapContainer">
-            <img id="floorMap" src="path/to/floor_map.jpg" alt="Floor Map">
-            <div id="marker"></div>
-        </div>        
+    <div id="results"></div>
+
+    <div id="floorMapContainer">
+        <div id="floorMapWrapper">
+            <img id="floorMapImage" src="" alt="Floor Map" style="width: 100%; max-width: 600px;" />
+            <div id="marker"></div> <!-- Marker inside floorMapWrapper -->
+        </div>
     </div>
 </body>
+
 </html>

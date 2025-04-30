@@ -7,9 +7,8 @@ const path = require("path");
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public")); // Serve static files (HTML, CSS, JS)
+app.use(express.static("public")); 
 
-// Database connection
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -20,7 +19,7 @@ const db = mysql.createConnection({
 db.connect((err) => {
     if (err) {
         console.error("Database connection failed:", err);
-        process.exit(1); // Stop server if DB connection fails
+        process.exit(1); 
     }
     console.log("Connected to MySQL");
 });
@@ -28,7 +27,6 @@ db.connect((err) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Request for respective parts.
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/map/index.html'));
 });
@@ -41,11 +39,9 @@ app.get('/campus-tour', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/campus-tour/tour.html'));
 });
 
-
-// Search for teacher names (for search suggestions)
 app.get("/api/teacher/suggestions", (req, res) => {
     const name = req.query.name;
-    if (!name) return res.json([]); // Return empty array if no input
+    if (!name) return res.json([]); 
 
     const sql = "SELECT name FROM teachers WHERE name LIKE ? LIMIT 5";
     db.query(sql, [`%${name}%`], (err, result) => {
@@ -53,11 +49,10 @@ app.get("/api/teacher/suggestions", (req, res) => {
             console.error("Error fetching suggestions:", err);
             return res.status(500).json({ error: "Internal Server Error" });
         }
-        res.json(result.map(row => row.name)); // Return only names
+        res.json(result.map(row => row.name)); 
     });
 });
 
-// Get full teacher details (excluding NULL room_and_wing)
 app.get("/api/teacher", (req, res) => {
     const name = req.query.name;
     if (!name) return res.status(400).json({ error: "Name parameter is required" });
@@ -68,7 +63,7 @@ app.get("/api/teacher", (req, res) => {
         WHERE name LIKE ? 
         AND room_and_wing IS NOT NULL
     `;
-    
+
     db.query(sql, [`%${name}%`], (err, result) => {
         if (err) {
             console.error("Error fetching teacher details:", err);

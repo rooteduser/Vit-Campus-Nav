@@ -5,18 +5,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultsDiv = document.getElementById("results");
     const floorMapContainer = document.getElementById("floorMapContainer");
     const marker = document.getElementById("marker");
+    const floorMapImage = document.getElementById("floorMapImage"); // New: image inside container
 
-    // Hide floor map initially
     floorMapContainer.style.display = "none";
 
-    // Fetch search suggestions
     searchInput.addEventListener("input", () => {
         const query = searchInput.value.trim();
 
         if (query.length === 0) {
-            resultsDiv.innerHTML = ""; // Clear displayed data
-            suggestionsList.innerHTML = ""; // Clear suggestions
-            floorMapContainer.style.display = "none"; // Hide floor map
+            resultsDiv.innerHTML = "";
+            suggestionsList.innerHTML = "";
+            floorMapContainer.style.display = "none";
             return;
         }
 
@@ -42,12 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(err => console.error("Error fetching suggestions:", err));
     });
 
-    // Fetch teacher details when search button is clicked
     searchButton.addEventListener("click", () => {
         const query = searchInput.value.trim();
         if (!query) {
-            resultsDiv.innerHTML = ""; // Clear results if input is empty
-            floorMapContainer.style.display = "none"; // Hide floor map
+            resultsDiv.innerHTML = "";
+            floorMapContainer.style.display = "none";
             return;
         }
 
@@ -55,9 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(response => response.json())
             .then(data => {
                 resultsDiv.innerHTML = "";
-                floorMapContainer.style.display = "none"; // Hide by default
-
                 if (data.length === 0) {
+                    floorMapContainer.style.display = "none";
                     resultsDiv.innerHTML = "<p>No results found</p>";
                     return;
                 }
@@ -66,49 +63,72 @@ document.addEventListener("DOMContentLoaded", () => {
                     const div = document.createElement("div");
                     div.classList.add("teacher-card");
 
-                    // Check if room_and_wing exists and is not "Not Assigned"
                     const roomInfo = teacher.room_and_wing && teacher.room_and_wing !== "Not Assigned"
                         ? `<p>Room & Wing: ${teacher.room_and_wing}</p>`
-                        : "";
+                        : "<p>No room assigned</p>";
 
                     div.innerHTML = `<h3>${teacher.name}</h3>
-                                     ${roomInfo} <!-- Conditionally show room_and_wing -->
+                                     ${roomInfo}
                                      <p>Cabin: ${teacher.cabin_no}</p>
                                      <p>Floor: ${teacher.floor}</p>`;
 
                     resultsDiv.appendChild(div);
 
-                    // Show floor map only if floor information exists
-                    if (teacher.floor) {
-                        floorMapContainer.style.display = "block";
-                        positionMarker(teacher.floor);
-                    }
+                    // Load appropriate floor map
+                    loadFloorMap(teacher.floor);
+
+                    // Position marker
+                    positionMarker(teacher.room_and_wing);
                 });
             })
             .catch(err => console.error("Error fetching teacher details:", err));
     });
 
-    // Function to position marker based on floor
-    function positionMarker(floor) {
-        // Example logic (Modify as per your floor map layout)
-        const floorPositions = {
-            "1": { top: "10%", left: "50%" },
-            "2": { top: "30%", left: "50%" },
-            "3": { top: "50%", left: "50%" },
-            "4": { top: "70%", left: "50%" }
+    function loadFloorMap(floorNumber) {
+        floorMapContainer.style.display = "block";
+
+        // Example logic — adjust based on your file names or setup
+        const floorMapPaths = {
+            "1": "../assets/first-floormap.jpg",
+            "2": "../assets/second-floormap.jpg",
+            "3": "../assets/third-floormap.jpg",
+            "4": "../assets/fourth-floormap.jpg",
+            "5": "../assets/fifth-floormap.jpg"
         };
 
-        if (floorPositions[floor]) {
-            marker.style.top = floorPositions[floor].top;
-            marker.style.left = floorPositions[floor].left;
-        }
+        const imageSrc = floorMapPaths[floorNumber] || floorMapPaths["1"];
+        floorMapImage.src = imageSrc;
     }
 
-    // Clear results when input is manually cleared
-    searchInput.addEventListener("input", () => {
-        if (searchInput.value.trim() === "") {
-            resultsDiv.innerHTML = "";
-            floorMapContainer.style.display = "none"; // Hide map
-        }
-    });
+    function positionMarker(roomAndWing) {
+        console.log("Positioning marker for:", roomAndWing);
+
+        const roomPositions = {
+            "AB504": { top: "90%", left: "21%" },
+            "AB516": { top: "10%", left: "21%" },
+            "C Wing": { top: "50%", left: "48%" },
+            "AB528": { top: "90%", left: "76%" },
+
+            "AB404": { top: "90%", left: "21%" },
+            "AB412": { top: "10%", left: "21%" },
+            "C Wing": { top: "50%", left: "48%" },
+            "AB428": { top: "90%", left: "76%" },
+
+            "AB304": { top: "90%", left: "21%" },
+            "AB316": { top: "10%", left: "21%" },
+            "PAT Office": { top: "50%", left: "48%" },
+            "AB328": { top: "90%", left: "76%" },
+
+            "AB202(A)": { top: "90%", left: "35%" },
+            "AB202(B)": { top: "90%", left: "29%" },
+            "AB203": { top: "90%", left: "21%" },
+            "AB227": { top: "90%", left: "76%" }
+        };
+
+        let position = roomPositions[roomAndWing] || { top: "50px", left: "60px" };
+
+        marker.style.top = position.top;
+        marker.style.left = position.left;
+        marker.style.display = "block";
+    }
 });

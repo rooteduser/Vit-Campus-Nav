@@ -2,13 +2,20 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
+    padding: 20px;
+    background-color: #f7f7f7;
 }
 
 /* Search Container */
 .search-container {
     position: relative;
-    display: inline-block;
-    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 10px auto;
 }
 
 /* Search Button */
@@ -21,6 +28,9 @@ body {
     font-size: 16px;
     border-radius: 5px;
     transition: background 0.3s;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 10px;
 }
 
 #searchButton:hover {
@@ -33,6 +43,9 @@ body {
     padding: 10px;
     margin-bottom: 5px;
     box-sizing: border-box;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 /* Suggestions List */
@@ -41,6 +54,9 @@ body {
     padding: 0;
     margin: 0;
     position: absolute;
+    top: 100%;
+    /* Align right below the input */
+    left: 0;
     width: 100%;
     background: white;
     border: 1px solid #ccc;
@@ -48,6 +64,7 @@ body {
     z-index: 1000;
     max-height: 200px;
     overflow-y: auto;
+    box-sizing: border-box;
 }
 
 #suggestions li {
@@ -63,28 +80,71 @@ body {
 /* Teacher Card */
 .teacher-card {
     border: 1px solid #ddd;
-    padding: 10px;
-    margin: 5px 0;
+    padding: 15px;
+    margin: 10px auto;
     border-radius: 5px;
     background: #f9f9f9;
+    max-width: 600px;
+    text-align: left;
 }
 
 /* Floor Map Container */
 #floorMapContainer {
     position: relative;
-    display: inline-block;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: center;
 }
 
-#floorMap {
-    width: 600px;
+/* Floor Map Wrapper */
+#floorMapWrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+/* Responsive Map Image */
+#floorMapImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border: 1px solid black;
+    border-radius: 8px;
 }
 
 /* Marker */
 #marker {
-    width: 20px;
-    height: 20px;
-    background-color: red;
     position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: rgb(255, 0, 0, 0.5);
     border-radius: 50%;
     display: none;
+    transform: translate(-50%, -50%);
+    transition: top 0.3s ease, left 0.3s ease;
+    z-index: 100;
+}
+
+/* Responsive Typography */
+h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .teacher-card {
+        font-size: 0.95rem;
+        padding: 12px;
+    }
+
+    #searchInput,
+    #searchButton {
+        font-size: 15px;
+    }
 }
